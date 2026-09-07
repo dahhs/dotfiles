@@ -12,7 +12,8 @@ vim.api.nvim_set_keymap('n', ',q', '<cmd>lua vim.diagnostic.setloclist()<CR>', o
 -- after the language server attaches to the current buffer
 local on_attach = function(client, bufnr)
   -- Enable completion triggered by <c-x><c-o>
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  -- vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc') -- OLD
+  vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'                           -- NEW
 
   -- Mappings.
   -- See `:help vim.lsp.*` for documentation on any of the below functions
@@ -29,7 +30,7 @@ local on_attach = function(client, bufnr)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', ',rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts) 	-- 註：可一鍵更改所有變數！
   vim.api.nvim_buf_set_keymap(bufnr, 'n', ',qf', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', ',f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', ',f', '<cmd>lua vim.lsp.buf.format()<CR>', opts)
 
   -- python debugging mappings
   -- vim.api.nvim_set_keymap('n', ';db', '<cmd>DapToggleBreakpoint<CR>', opts)
@@ -47,34 +48,42 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
 
 -- Adds smart features to editor,
 -- code completion, compile errors, go-to-definition and more.
-require('lspconfig').clangd.setup{
-  on_attach = on_attach,
-  cmd = {
-    "/opt/homebrew/opt/llvm/bin/clangd",   
-    "--background-index",
-    "--pch-storage=memory",
-    "--all-scopes-completion",
-    "--pretty",
-    "--header-insertion=never",
-    "-j=4",
-    -- "--inlay-hints",
-    "--header-insertion-decorators",
-    "--function-arg-placeholders",
-    "--completion-style=detailed",
-  },
-  filetypes = {"c", "cpp", "objc", "objcpp"},
-  root_dir = require('lspconfig').util.root_pattern("src"),
-  -- init_options = { fallbackFlags = { "--std=c++2a" } }, -- use it or use .clangd
-  capabilities = capabilities
-}
+vim.lsp.config('clangd', {
+    on_attach = on_attach,
+    cmd = {
+      '/opt/homebrew/opt/llvm/bin/clangd',
+      '--background-index',
+      '--pch-storage=memory',
+      '--all-scopes-completion',
+      '--pretty',
+      '--header-insertion=never',
+      '-j=4',
+      '--header-insertion-decorators',
+      '--function-arg-placeholders',
+      '--completion-style=detailed',
+    },
+    filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+    root_markers = { 'src' },
+    capabilities = capabilities,
+})
 -- touch .clangd on workspace dir to avoid annoying errors form clangd:
 -- CompileFlags: 
 --   Add: [ "-std=c++20" ]  # 添加 C++20 標準的編譯選項
 --   Compiler: "clang++"    # 使用 clang++ 作為編譯器
 
 
-require('lspconfig').pyright.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-  cmd = { "/Users/dah/.local/share/nvim/mason/bin/pyright-langserver", "--stdio" }
-}
+vim.lsp.config('pyright', {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    cmd = {
+      '/Users/dah/.local/share/nvim/mason/bin/pyright-langserver',
+      '--stdio',
+    },
+})
+
+vim.lsp.enable({ 'clangd', 'pyright' }) 
+
+vim.diagnostic.config({ virtual_text = true, })
+
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist) 
+

@@ -1,44 +1,33 @@
-" ====== basic setup ====== 
 syntax on
 set number 
 set encoding=utf-8
-
-" Line wrap. 超出螢幕寬度自動換行
-set wrap
-
-" Mouse support
+"set wrap
+set nowrap
 set mouse=a
-
-" 執行一些命令時，Vim 會迅速覆蓋之前的訊息，以便不阻礙視線
 set shortmess+=c
-
-" 在行號左側顯示符號欄位，用來顯示錯誤與警告
 set signcolumn=yes
 
-" Highlight search results
 set hlsearch
 set incsearch
 
-" disable backup files
 set nobackup
 set nowritebackup
 set noswapfile
 
-set tabstop=2      " 一個 Tab 顯示寬度為 N 格
-set shiftwidth=2   " << 或 >> 每次縮排 N 格
+set tabstop=4      " 一個 Tab 顯示寬度為 N 格
+set shiftwidth=4   " << 或 >> 每次縮排 N 格
 set expandtab      " 將 Tab 鍵自動轉成空格
 
 set t_Co=256
-set termguicolors  " Can switch to notermguicolors
+set notermguicolors " Can switch to notermguicolors
 
-" faster updates!
 set updatetime=100
 
 " vim 執行時不需考慮和 vi 相容。預設為開啟，所以不設定
 " set nocompatible
 
-" automatically read on change
 set autoread
+
 
 " no folds, ever
 set foldlevelstart=99
@@ -49,22 +38,19 @@ set cino=(0,W4
 " copy and paste out of vim
 vnoremap <silent> ;y "+y<CR>
 
+nnoremap <silent> ff yiw
+nnoremap <silent> fi viwp
+
 " Use ctrl + y as in VSCode
 nnoremap r <Cmd>redo<CR>
 
-" ;q = :q 
 noremap <silent> ;q :q<CR>
-
-" ;w = :update
 nnoremap <silent> ;w :update<CR>
-
-" ;wq = :wq
 nnoremap <silent> ;wq :update \| :q<CR>
+nnoremap <silent> ;Q :q!<CR>
 
-" // = :noh
 nnoremap // :noh<CR>
 
-" ====== basic movement ======
 " Map insert mode CTRL-{hjkl} to arrows
 imap <C-h> <Left>
 imap <C-j> <Down>
@@ -86,13 +72,25 @@ vnoremap > >gv
 " 左縮排並保持選中
 vnoremap < <gv
 
-" <leader>p: find and replace with nvim-spectr
-nnoremap <silent> <leader>l :lua require('spectre').open()<CR>
+" open same file in vertical/horizonal splits
+nnoremap <silent> ;vmp :leftabove vsplit %<CR>
+nnoremap <silent> ;xmp :leftabove split %<CR>
 
-" <leader>fr: find and replace in current file
-nnoremap <silent> <leader>g viw:lua require('spectre').open_file_search()<CR>
+nnoremap ;s :s/
+xnoremap ;s y:%s/<C-r>"//g<Left><Left>
+" easy search/replace on current line with visual selection
+xnoremap ;ls y:.s/<C-r>"//g<Left><Left>
 
-" language-specific formatters
+" 實驗 ;s 與 ;ls mapping
+"    Foo bar Foo
+"    baz Foo qux
+"    error error ok error
+
+" Toggle auto-complete for LeetCoding
+nnoremap ;af :lua require("cmp").setup.buffer({ completion = { autocomplete = false } })<CR>
+nnoremap ;at :lua require("cmp").setup.buffer({ completion = { autocomplete = { require("cmp.types").cmp.TriggerEvent.TextChanged } } })<CR>
+
+" language-specific formatters. Select text and Press 'gq' to format
 au FileType cpp set formatprg=clang-format | set equalprg=clang-format
 
 " Only apply in when Makefile exists. 
@@ -116,18 +114,11 @@ au Filetype python nnoremap <silent> ;r :VimuxRunCommand("python3 " . bufname("%
 au FileType c nnoremap <silent> ;m :VimuxRunCommand("make " . expand("%:r") . " && ./" . expand("%:r"))<CR>
 au FileType c nnoremap <silent> ;m :VimuxRunCommand("make -s " . expand("%:r") . " && ./" . expand("%:r"))<CR>
 
-let g:python3_host_prog = '/usr/bin/python3'
 
 " 等號對齊: glip=
 " 行首對齊: glip + Enter
 let g:lion_squeeze_spaces = 1
 
-
-" rainbow parens
-let g:rainbow_active = 1
-
-" 設定.txt檔有一個colorcolumn
-au FileType text set colorcolumn=80
 
 " colorcolumn 80 when opening C/C++ or py
 autocmd BufRead,BufNewFile *.c setlocal colorcolumn=80
@@ -138,6 +129,7 @@ autocmd BufRead,BufNewFile *.py setlocal colorcolumn=80
 
 " 要手動判定.h的文件類型是c
 autocmd BufRead,BufNewFile *.h set filetype=c
+autocmd BufRead,BufNewFile *.jsonl set filetype=json
 
 " 將 .S file 的註解改為 #：
 autocmd FileType asm let b:commentary_format = '# %s'
@@ -157,11 +149,3 @@ nmap .k <Plug>(easymotion-k)
 nmap ./ <Plug>(easymotion-overwin-line)
 nmap .a <Plug>(easymotion-jumptoanywhere)
 
-" show syntax group of symbol under cursor.  
-" 用法 :call SynStack()
-function! SynStack()
-  if !exists("*synstack")
-    return
-  endif
-  echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc

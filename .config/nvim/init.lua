@@ -1,303 +1,232 @@
-vim.g.mapleader = ","
-
-vim.cmd([[
-	so ~/.config/nvim/legacy.vim
-]])
-
-require('plugins')
+vim.g.mapleader = " "
+vim.cmd([[so ~/.config/nvim/legacy.vim]])
+vim.g.python3_host_prog = '/usr/bin/python3'
+require("plugins")
 require('mylsp')
 require('nvimcmp')
 
-require('lualine').setup{
-  sections = {
-    lualine_c = {
-      'filename',
-      function()
-        return vim.fn['nvim_treesitter#statusline'](180)
-      end},
-  },
-}
+vim.keymap.set("n", "<M-o>", "<C-o>") -- 用 Alt-i 和 Alt-o 來代替，避免跟 Tab 衝突
+vim.keymap.set("n", "<M-i>", "<C-i>")
+vim.keymap.set("n", "<leader>=", "glip=", { remap = true, })
+vim.keymap.set("n", "<leader>'", function() vim.fn.system("tmux split-window -v -p 25") end)
+vim.keymap.set("n", "<leader>;", function() vim.fn.system("tmux kill-pane -t :.bottom") end, { silent = true })
+vim.keymap.set("n", "<leader>c", function() vim.fn.system("tmux new-window") end)
 
-require('nvim-treesitter.configs').setup {
-	highlight = {
-	  enable = true, 
-	  additional_vim_regex_highlighting = false,
-	},
-}
+vim.lsp.log.set_level("OFF") -- turn off lsp.log at ~/.local/state/nvim/lsp.log
+
+vim.api.nvim_set_hl(0, "annotation", { fg = "#ebdbb2", })
+vim.fn.matchadd("annotation", [[\<NOTE\>]])
+vim.fn.matchadd("annotation", [[\<TODO\>]])
+vim.fn.matchadd("annotation", [[\<FIXME\>]])
+vim.fn.matchadd("annotation", [[\<BUG\>]])
+
+
+vim.api.nvim_create_autocmd('FileType', {
+  callback = function(args)
+    pcall(vim.treesitter.start, args.buf)
+  end,
+})
+
+
+require('render-markdown').setup({ completions = { lsp = { enabled = true } },})
+vim.api.nvim_set_keymap('n', ';md', ':RenderMarkdown toggle<CR>', { noremap = true, silent = true })
+
+
+require("ipynb").setup()
+
+
+require("nvim-tree").setup()
+vim.keymap.set("n", ";t", "<cmd>NvimTreeToggle<CR>")
+vim.keymap.set("n", ";f", "<cmd>NvimTreeFindFile<CR>")
+
 
 require("gruvbox").setup({
-	invert_selection = true,
-	contrast = "", -- soft/hard/""
-	-- transparent_mode = true, -- true: 對比強制為hard，且FzfLua時背景會變清楚
-    inverse = false, -- invert background for search, diffs, statuslines and errors
+  invert_selection = true,
+  transparent_mode = false,
+  contrast = "hard", -- hard/soft/""
+  inverse = false, -- invert background for search, diffs, statuslines and errors
+  overrides = {
 
-    overrides = {
-		-- 嘗試
-        ["@module.python"] = { fg = "#458588" }, 
-		-- ["@property.c"] = { fg = "#458588" }, -- struct members (suite for BIG project)
-        -- ["@variable.c"] = { fg = "#458588" },
-        -- ["@variable.cpp"] = { fg = "#458588" },
+    ["RenderMarkdownCode"] = { bg = "#282828", },
 
-		-- C/C++ old colors
-	    ["@variable.c"] = { fg = "#83a598" },
-	    ["@keyword.modifier.c"] = { fg = "#fe8019" }, -- GruvboxOrange
-        ["@operator.c"] = { fg = "#ebdbb2" },         -- GruvboxFg
-        ["@constant.macro.c"] = { fg = "#d3869b" },   -- GruvboxPurple
+    ["Pmenu"] = { bg = "#5a5a5a", }, -- 補全背景
+    ["NormalFloat"] = { bg = "#5a5a5a", }, -- Shift + K 後的背景
 
-        ["@module.cpp"] = { fg = "#83a598" },
-        ["@constant.macro.cpp"] = { fg = "#d3869b" },   -- GruvboxPurple
-        ["@variable.cpp"] = { fg = "#83a598" },
-        ["@operator.cpp"] = { fg = "#ebdbb2" },         -- GruvboxFg
-        ["@keyword.modifier.cpp"] = { fg = "#fe8019" }, -- Orange(#fe8019) or Yellow(#fabd2f)
-        ["@namespace.cpp"] = { link = "GruvboxAqua" },  -- GruvboxFg
-		
-    }
+    -- nvim-cmp UI
+    ["CmpItemKindVariable"] = { fg = "#fabd2f", },
+    ["CmpItemKindSnippet"]  = { fg = "#fabd2f", bg = "#665c54", },
+    ["CmpItemAbbr"]         = { fg = "#ebdbb2", },
+    ["CmpItemKindFunction"] = { fg = "#b8bb26", }, -- #b8bb26 or #fabd2f
+    ["CmpItemKindKeyword"]  = { fg = "#fabd2f", },
+    ["CmpItemKindText"]     = { fg = "#fabd2f", },
+    ["CmpItemKind"]         = { fg = "#83a598", bg = "#3c3836", },
+
+    -- md
+    ["@string.prefix.python"] = { fg = "#ec6a65" }, -- red
+
+    -- py
+    ["@variable.python"]         = { fg = "#8fad8a" }, -- #83a598 or #8fad8a
+    ["@module.python"]           = { fg = "#83a598" }, -- #8fad8a or #458588
+    ["@function.builtin.python"] = { fg = "#b8bb26" },
+    ["@operator.python"]         = { fg = "#ebdbb2" }, -- white
+    ["@string.prefix.python"]    = { fg = "#ec6a65" }, -- red
+    ["@constructor.python"]      = { fg = "#fabd2f" }, -- yellow
+    
+    -- c
+    -- ["@property.c"]      = { fg = "#458588" }, -- struct members (suite for large project)
+    -- ["@variable.c"]      = { fg = "#458588" },
+    ["@variable.c"]         = { fg = "#83a598" }, -- #83a598 or #8fad8a
+    ["@keyword.modifier.c"] = { fg = "#fe8019" }, -- GruvboxOrange
+    ["@operator.c"]         = { fg = "#ebdbb2" }, -- GruvboxFg
+    ["@constant.macro.c"]   = { fg = "#d3869b" }, -- GruvboxPurple
+
+    -- cpp
+    ["@module.cpp"]           = { fg   = "#83a598" },
+    ["@constant.macro.cpp"]   = { fg   = "#d3869b" }, -- GruvboxPurple
+    -- ["@variable.cpp"]      = { fg   = "#458588" },
+    ["@variable.cpp"]         = { fg   = "#83a598" }, -- #8f9e8d LGTM, but not work
+    ["@operator.cpp"]         = { fg   = "#ebdbb2" }, -- GruvboxFg
+    ["@keyword.modifier.cpp"] = { fg   = "#fe8019" }, -- Orange(#fe8019) or Yellow(#fabd2f)
+    ["@namespace.cpp"]        = { link = "GruvboxAqua" }, -- GruvboxFg
+
+  },
+
+  palette_overrides = {
+    bright_aqua = "#8fad8a",
+    bright_red = "#ec6a65",
+    gray = "#808080",
+    bright_purple = "#cc8bad", 
+    dark1 = "#434343", -- signcolumn ; #3a3a3a/#434343
+    dark4 = "#7d7d7d", -- line number
+    dark5 = "#808080",
+  }
+
 })
--- 使用 Treesitter 高亮規則
--- vim.cmd [[highlight link DiagnosticUnnecessary GruvboxFg1]]
-vim.cmd("colorscheme gruvbox") -- Gruvbox hard -> Brightness = -1, Contrast = +2
-
--- vim.api.nvim_set_hl(0, '@lsp.type.namespace.cpp', { link = 'GruvboxAqua' })
--- vim.api.nvim_set_hl(0, '@lsp.type.macro.cpp', { link = 'GruvboxPurple' })
--- vim.api.nvim_set_hl(0, '@lsp.type.variable.cpp', { link = 'GruvboxAqua' })
-
--- vim.api.nvim_set_hl(0, 'cError', { link = 'GruvboxAqua' })
--- vim.api.nvim_set_hl(0, 'ErrorMsg', { fg = 'GruvboxAqua' })
+vim.o.background = "dark" -- Gruvbox hard: Brightness = -1, Contrast = +2
+vim.cmd.colorscheme("gruvbox")
 
 
+require('nvim-web-devicons').setup()
 
--- New colors 
--- vim.api.nvim_set_hl(0, "CmpItemKindVariable", { fg = "#fabd2f" }) -- GruvboxYellow
--- vim.api.nvim_set_hl(0, "Pmenu", { bg = "#665c54" }) --  設定補全背景
--- vim.api.nvim_set_hl(0, "CmpItemKindSnippet", { fg = "#fabd2f", bg = "#665c54" }) -- 設定 Snippet 的顏色
--- vim.api.nvim_set_hl(0, "CmpItemAbbr", { fg = "#ebdbb2" })
--- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#665c54" }) -- shift + K 後的背景
--- vim.api.nvim_set_hl(0, "CmpItemKindFunction", { fg = "#fabd2f" }) -- 設定 Function 顏色
--- vim.api.nvim_set_hl(0, "CmpItemKindFunction", { fg = "#b8bb26" }) -- 設定 Function 顏色
--- vim.api.nvim_set_hl(0, "CmpItemKindKeyword", { fg = "#fabd2f" }) 
--- vim.api.nvim_set_hl(0, "CmpItemKindText", { fg = "#fabd2f" }) 
+require("lualine").setup({
+  options = {
+    theme = {
+      normal = {
+        a = { fg = "#282828", bg = "#ae9393" },
+        b = { fg = "#ebdbb2", bg = "#504945" },
+        c = { fg = "#a89984", bg = "#434343" },
+      },
+      insert = {
+        b = { fg = "#ebdbb2", bg = "#504945" },
+        c = { fg = "#a89984", bg = "#434343" },
+      },
+      command = {
+        b = { fg = "#ebdbb2", bg = "#504945" },
+        c = { fg = "#a89984", bg = "#434343" },
+      },
+      visual = {
+        b = { fg = "#ebdbb2", bg = "#504945" },
+        c = { fg = "#a89984", bg = "#434343" },
+      },
+    },
+    -- minimal+
+    section_separators   = { left = "", right  = "", },
+    component_separators = { left = "│", right = "│", },
 
--- Old colors LGTM :)
-vim.api.nvim_set_hl(0, "CmpItemKindVariable", { fg = "#fabd2f" }) -- GruvboxYellow
-vim.api.nvim_set_hl(0, "Pmenu", { bg = "#665c54" }) --  設定補全背景
-vim.api.nvim_set_hl(0, "CmpItemKindSnippet", { fg = "#fabd2f", bg = "#665c54" }) -- 設定 Snippet 的顏色
-vim.api.nvim_set_hl(0, "CmpItemAbbr", { fg = "#ebdbb2" })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#665c54" }) -- shift + K 後的背景
-vim.api.nvim_set_hl(0, "CmpItemKindFunction", { fg = "#fabd2f" }) -- 設定 Function 顏色
-vim.api.nvim_set_hl(0, "CmpItemKindFunction", { fg = "#fabd2f" }) -- 設定 Function 顏色
-vim.api.nvim_set_hl(0, "CmpItemKindKeyword", { fg = "#fabd2f" }) 
-vim.api.nvim_set_hl(0, "CmpItemKindText", { fg = "#fabd2f" }) 
-vim.api.nvim_set_hl(0, "CmpItemKindEnumMember", { fg = "#fabd2f" }) 
-vim.api.nvim_set_hl(0, "CmpItemKindEnumMember", { fg = "#fabd2f" }) 
-vim.api.nvim_set_hl(0, "CmpItemKindConstant", { fg = "#fabd2f" }) 
+    -- minimal
+    -- section_separators = '',
+    -- component_separators = '',
+    -- triangle
+    -- component_separators = { left = '', right = ''},
+    -- section_separators = { left = '', right = ''},
+    -- rounded corners
+    -- component_separators = { left = '', right = '' },
+    -- section_separators = { left = '', right = '' },
+  },
+})
 
 
-vim.api.nvim_set_keymap('n', '<C-p>', ":FzfLua files<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-g>', ":FzfLua grep<CR>", { noremap = true, silent = true })
-local actions = require "fzf-lua.actions"
+local fzf = require("fzf-lua")
+local actions = require ("fzf-lua.actions")
+vim.keymap.set("n", "<C-p>", function() fzf.files() end)
+vim.keymap.set("n", "<leader>p", function() fzf.files({ fd_opts = "--type f --type l --hidden --no-ignore", }) end)
+vim.keymap.set("n", "<C-g>", function() fzf.grep() end)
+vim.keymap.set("n", "<leader>g", function() fzf.grep({ fd_opts = "--type f --type l --hidden --no-ignore", }) end)
+vim.keymap.set("n", ";b", function() fzf.buffers() end)
+vim.keymap.set("n", ";gc", function() fzf.git_commits({ no_ignore = true }) end)
+vim.keymap.set("n", ";gs", function() fzf.git_status({ no_ignore = true }) end)
+vim.keymap.set("n", ";gb", function() fzf.git_branches({ no_ignore = true }) end)
+
 require("fzf-lua").setup{
   actions = {
-	files = {
-	  ["enter"]  = actions.file_edit_or_qf,
-	  ["ctrl-x"] = actions.file_split,
-	  ["ctrl-v"] = actions.file_vsplit,
-	  ["ctrl-t"] = actions.file_tabedit,
-	  ["alt-q"]  = actions.file_sel_to_qf,
-	  ["alt-Q"]  = actions.file_sel_to_ll,
-	},
+    files = {
+      ["enter"]  = actions.file_edit_or_qf,
+      ["ctrl-x"] = actions.file_split,
+      ["ctrl-v"] = actions.file_vsplit,
+      ["ctrl-t"] = actions.file_tabedit,
+      ["alt-q"]  = actions.file_sel_to_qf,
+      ["alt-Q"]  = actions.file_sel_to_ll,
+    },
   },
-
   fzf_opts = {
-	["--ansi"]           = true,
-	["--info"]           = "inline-right",
-	["--height"]         = "100%",
-	["--layout"]         = "default",
-	["--border"]         = "none",
-	["--highlight-line"] = true,
+    ["--ansi"]           = true,
+    ["--info"]           = "inline-right",
+    ["--height"]         = "100%",
+    ["--layout"]         = "default",
+    ["--border"]         = "none",
+    ["--highlight-line"] = true,
+    ["--pointer"]        = "▶",
+    ["--info"]           = "inline", -- fzf < v0.42 = "inline"
+    -- fzf_tmux_opts = { ["-p"] = "80%,80%", ["--margin"] = "0,0" },
   },
-
   winopts = {
-	  border = "thicc", -- preview border: accepts both `nvim_open_win`
-	preview = {
-	  border    = "thicc", -- preview border: accepts both `nvim_open_win`
-	  vertical  = 'up:60%', -- 將 preview 顯示在上面
-	  title_pos = "center", -- left|center|right, title alignment
-	}
+    border = "thicc", -- preview border: accepts both `nvim_open_win`
+    preview = {
+      border    = "thicc", -- preview border: accepts both `nvim_open_win`
+      vertical  = 'up:60%', -- 將 preview 顯示在上面
+      title_pos = "left", -- left|center|right, title alignment
+    },
+  },
+  files = {
+    fd_opts = " --type f --type l --hidden --exclude .git --exclude .venv --exclude __pycache__",
+    -- rg_opts = "--color=never --files --hidden --follow -g '!.git' -g '!.venv'",
+  },
+  previewers = {
+    bat = {
+      cmd  = "bat",
+      args = "--color=always --style=numbers,changes",
+    },
   },
 }
--- require("mason").setup()
 
--- 初始化 mason-lspconfig，不指定任何特定的 LSP 伺服器
--- require("mason-lspconfig").setup {
--- 啟動時自動檢查和確保特定的 LSP 伺服器已經安裝。
---   ensure_installed = { "pyright" }, 
--- }
 
--- require("dap-python").setup("/Users/dah/.virtualenvs/debugpy/bin/python")
--- If using the above, then `/path/to/venv/bin/python -m debugpy --version`
--- must work in the shell
+-- change variable name
+vim.keymap.set("n", "<leader>g", function() require("spectre").open() end)
+vim.keymap.set("n", "<leader>k", function() require("spectre.actions").run_replace() end)
+vim.keymap.set("n", "<leader>l", function() vim.cmd("normal! viw") require("spectre").open_file_search() end)
+require('spectre').setup({ live_update = true, })
 
--- local dap = require('dap')
 
--- dap.adapters.debugpy = {
--- 	type = 'executable';
--- 	command = os.getenv('HOME') .. '/.virtualenvs/debugpy/bin/python3 -m debugpy';
--- 	args = { '-m', 'debugpy.adapter' };
--- }
-
--- dap.configurations.python = {
---   {
--- 	type = 'python';
--- 	request = 'launch';
--- 	name = "Launch file";
--- 	program = "${file}";
---     console = "integratedTerminal";
--- 	pythonPath = function()
--- 	  return '/usr/bin/python3'
--- 	end;
---   },
--- }
-
--- continue, step into, step over, step out, ?, restart, stop
--- ICON: https://stackoverflow.com/questions/715910/unicode-first-previous-next-and-last
--- local dapui = require('dapui')
--- dapui.setup(  {
---     controls = {
---       element = "repl",
---       enabled = true,
---       icons = {
---         disconnect = "Disconnect",
---         pause = "Pause",
---         play = "Play",
---         run_last = "RunLast", -- last
---         step_back = "StepBack",
---         step_into = "StepInto", -- continue
---         step_out = "StepOut",
---         step_over = "StepOver",
---         terminate = "Terminate",
---         terminate = "Terminate",
---       }
---     },
---     element_mappings = {},
---     expand_lines = true,
---     floating = {
---       border = "single",
---       mappings = {
---         close = { "q", "<Esc>" }
---       }
---     },
---     force_buffers = true,
---     icons = {
---       collapsed = "",
---       current_frame = "",
---       expanded = ""
---     },
---     layouts = { {
---         elements = { {
---             id = "scopes",
---             size = 0.25
---           }, {
---             id = "breakpoints",
---             size = 0.25
---           }, {
---             id = "stacks",
---             size = 0.25
---           }, {
---             id = "watches",
---             size = 0.25
---           } },
---         position = "left",
---         size = 40
---       }, {
---         elements = { {
---             id = "repl",
---             size = 0.5
---           }, {
---             id = "console",
---             size = 0.5
---           } },
---         position = "bottom",
---         size = 10
---       } },
---     mappings = {
---       edit = "e",
---       expand = { "<CR>", "<2-LeftMouse>" },
---       open = "o",
---       remove = "d",
---       repl = "r",
---       toggle = "t"
---     },
---     render = {
---       indent = 1,
---       max_value_lines = 100
---     }
---   })
--- dap.listeners.before.attach.dapui_config = function()
---   dapui.open()
--- end
--- dap.listeners.before.launch.dapui_config = function()
---   dapui.open()
--- end
--- dap.listeners.before.event_terminated.dapui_config = function()
---   dapui.close()
--- end
--- dap.listeners.before.event_exited.dapui_config = function()
---   dapui.close()
--- end
-
--- spectre
-require('spectre').setup({
-  live_update = true,
-  ['run_replace'] = {
-    map = "<leader>l",
-    cmd = "<cmd>lua require('spectre.actions').run_replace()<CR>",
-    desc = "replace all"
-  },
-  find_engine = {
-    ['rg'] = {
-      cmd = "rg",
-      args = {
-        '--color=never',
-        '--no-heading',
-        '--with-filename',
-        '--line-number',
-        '--column',
-        '--pcre2',
-      } ,
-      options = {
-        ['ignore-case'] = {
-          value= "--ignore-case",
-          icon="[I]",
-          desc="ignore case"
-        },
-        ['hidden'] = {
-          value="--hidden",
-          desc="hidden file",
-          icon="[H]"
-        },
-        -- you can put any rg search option you want here it can toggle with
-        -- show_option function
-      }
-    },
-  }
-})
-
-require('symbols-outline').setup() 
-vim.api.nvim_set_keymap('n', '<leader>s', ':SymbolsOutline<CR>', { noremap = true, silent = true })
-
--- lsp_signature.nvim
 require "lsp_signature".setup({
   hint_prefix = "",
   floating_window = false,
   bind = true,
+  hint_prefix = "🔎 ",  -- Panda for parameter, NOTE: for the terminal not support emoji, might crash
 })
+
 
 -- from :h lsp-semantic-highlight. Hide all semantic highlights
 for _, group in ipairs(vim.fn.getcompletion("@lsp", "highlight")) do
     vim.api.nvim_set_hl(0, group, {})
 end
 
--- 設定 LSP 日誌層級，如果警告訊息不影響功能運行，你可以選擇降低 LSP 日誌層級，
-vim.lsp.set_log_level('ERROR')
--- turn off lsp.log at ~/.local/state/nvim/lsp.log
-vim.lsp.set_log_level("OFF")
+
+vim.lsp.config('pyright', {})
+vim.lsp.enable('pyright')
+vim.diagnostic.config({ virtual_text = true, })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist) -- 在下方打開當前檔案的所有錯誤清單
+
+
+require("aerial").setup()
+vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>")
+
