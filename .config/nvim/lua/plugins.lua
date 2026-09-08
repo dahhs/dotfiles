@@ -24,5 +24,6 @@ vim.pack.add({
     'https://github.com/nvim-tree/nvim-tree.lua',
     'https://github.com/ajbucci/ipynb.nvim',
     'https://github.com/stevearc/aerial.nvim',
+    "https://github.com/mason-org/mason.nvim",
 })
 

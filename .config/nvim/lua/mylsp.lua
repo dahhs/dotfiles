@@ -81,9 +81,58 @@ vim.lsp.config('pyright', {
     },
 })
 
-vim.lsp.enable({ 'clangd', 'pyright' }) 
 
-vim.diagnostic.config({ virtual_text = true, })
+vim.lsp.config("lua_ls", {
+    on_attach = on_attach,
+    capabilities = capabilities,
+	settings = {
+		Lua = {
+			diagnostics = { globals = { "vim" } },
+			telemetry = { enable = false },
+            workspace = {
+                -- 讓 lua_ls 去讀取 Neovim 內建的 runtime 檔案，這樣打 vim. 才會跳出補全
+                library = vim.api.nvim_get_runtime_file("", true),
+                checkThirdParty = false, -- 關閉煩人的第三方套件提示
+            },
+		},
+	},
+})
 
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist) 
+vim.lsp.enable({ 'clangd', 'pyright', 'lua_ls' })
+
+-- vim.diagnostic.config({ virtual_text = true, })
+
+local diagnostic_signs = {
+	Error = "\u{f057} ",
+	Warn  = "\u{f071} ",
+	Hint  = "\u{ea61}",
+	Info  = "\u{f05a}",
+}
+
+vim.diagnostic.config({
+	-- virtual_text = { prefix = "●", spacing = 4 },
+	virtual_text = { virtual_text = true, },
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = diagnostic_signs.Error,
+			[vim.diagnostic.severity.WARN] = diagnostic_signs.Warn,
+			[vim.diagnostic.severity.INFO] = diagnostic_signs.Info,
+			[vim.diagnostic.severity.HINT] = diagnostic_signs.Hint,
+		},
+	},
+	underline = true,
+	update_in_insert = false,
+	severity_sort = true,
+	float = {
+		border = "rounded",
+		source = true,
+		header = "",
+		prefix = "",
+		focusable = false,
+		style = "minimal",
+	},
+})
+
+vim.keymap.set('n', '<leader>d', vim.diagnostic.setloclist)
+vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float)
 

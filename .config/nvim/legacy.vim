@@ -103,11 +103,9 @@ au Filetype c nnoremap <silent> ;r :VimuxRunCommand("clang " . bufname("%") . " 
 au Filetype cpp nnoremap <silent> ;r :VimuxRunCommand("clang++ " . bufname("%") . " && ./a.out")<CR>
 au Filetype python nnoremap <silent> ;r :VimuxRunCommand("python3 " . bufname("%"))<CR>
 
-" 為了暫時練 OJ 方便先設定為這樣，原設定在 107 行
-"au Filetype c nnoremap <silent> ;r :VimuxRunCommand("clang " . bufname("%") . " && ./a.out < input.txt")<CR>
 
 " ;m = make <filename> && ./<filename> 
-" %  意思是檔名 
+" %  檔名 
 " :r 修飾檔名。假設是main.c則會變成main
 " -s, --silent, --quiet       Don't echo commands.
 " In command mode we should use :echo expand("%:t:r")
