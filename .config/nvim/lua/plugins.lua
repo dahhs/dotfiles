@@ -11,7 +11,7 @@ vim.pack.add({
     'https://github.com/hrsh7th/cmp-path',
     'https://github.com/hrsh7th/cmp-cmdline',
     'https://github.com/hrsh7th/vim-vsnip',
-    'https://github.com/SirVer/ultisnips',
+    -- 'https://github.com/SirVer/ultisnips',
     'https://github.com/quangnguyen30192/cmp-nvim-ultisnips',
     'https://github.com/nvim-lua/plenary.nvim',
     'https://github.com/nvim-pack/nvim-spectre',

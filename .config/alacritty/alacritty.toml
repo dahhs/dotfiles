@@ -2,12 +2,10 @@ general.live_config_reload = true
 
 [colors]
 draw_bold_text_with_bright_colors = false
-
 # NEW style
 [colors.primary]
 background = "0x1d2021"
 foreground = "0xd4be98"
-
 [colors.normal]
 black = "0x32302f"
 blue = "0x7daea3"
@@ -32,7 +30,6 @@ yellow = "0xd8a657"
 # [colors.primary]
 # background = "0x1d2021"
 # foreground = "0xd5c4a1"
-#
 # [colors.normal]
 # black = "0x1d2021"
 # red = "0xfb4934"
@@ -42,7 +39,6 @@ yellow = "0xd8a657"
 # magenta = "0xd3869b"
 # cyan = "0x8ec07c"
 # white = "0xd5c4a1"
-#
 # [colors.bright]
 # black = "0x665c54"
 # red = "0xfe8019"
@@ -62,7 +58,6 @@ text = "0x1d2021"
 
 [env]
 TERM = "xterm-256color"
-# TERM = "alacritty"
 
 [font]
 size = 15
@@ -70,7 +65,7 @@ size = 15
 [font.normal]
 family = "RobotoMono Nerd Font" # RobotoMono Nerd Font / Roboto Mono 
 # family = "Roboto Mono"
-style = "Medium"
+style = "Medium" 
 
 [window]
 # 在終端機設定中將 Option 鍵改為 "Esc+"。為了在nvim使用 <M-o>，i.e. Alt
@@ -79,12 +74,22 @@ dynamic_title = true
 title = "Terminal"
 opacity = 1 # default 1.0
 
-# [[keyboard.bindings]]
-# chars = "\u001BF"
-# key = "Right"
-# mods = "Alt"
 
-# [[keyboard.bindings]]
-# chars = "\u001BB"
-# key = "Left"
-# mods = "Alt"
+[mouse]
+[[mouse.bindings]]
+mouse = "WheelUp"
+action = "ScrollLineUp"
+[[mouse.bindings]]
+mouse = "WheelDown"
+action = "ScrollLineDown"
+
+
+[[keyboard.bindings]]
+chars = "\u001BF"
+key = "Right"
+mods = "Command"
+[[keyboard.bindings]]
+chars = "\u001BB"
+key = "Left"
+mods = "Command"
+

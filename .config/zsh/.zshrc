@@ -1,67 +1,46 @@
+# 隨時刪除這些設定
+# export VULKAN_SDK=$HOME/Projects/capstone-project/VulkanSDK/1.4.335.0
+# export PATH=$VULKAN_SDK/macOS/bin:$PATH
+# export DYLD_LIBRARY_PATH=$VULKAN_SDK/macOS/lib:$DYLD_LIBRARY_PATH
+
+eval $(/opt/homebrew/bin/brew shellenv)
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_PROGRESS=1
+export TLDR_AUTO_UPDATE_DISABLED=true
+
+export EDITOR=nvim
+alias lsd="ls -dl .*"
+alias gitgraph="git log --graph --decorate --oneline --all"
+
+
+export DYLD_FALLBACK_LIBRARY_PATH="$(brew --prefix)/lib:$DYLD_FALLBACK_LIBRARY_PATH"
+
+# 可在命令行中直接運行llvm相關的工具，如clang、clang++等，
+# 而不必輸入完整的路徑(預設是/usr/bin/clang會先被使用)
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+
+export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
 export LDFLAGS="-L/opt/homebrew/opt/binutils/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/binutils/include"
 
-export CPLUS_INCLUDE_PATH=/opt/homebrew/Cellar/open-mpi/5.0.3_1/include:$C_INCLUDE_PATH  
-
-export PYDEVD_DISABLE_FILE_VALIDATION=1
-
-export PROJECT_ID='proj_qDZWYICOp5aJYRwYA6Xbq3gK'
-
-# 不會在brew install <package> 時自動更新所有套件
-export HOMEBREW_NO_AUTO_UPDATE=1
-
-# homebrew in path
-eval $(/opt/homebrew/bin/brew shellenv)
-
-# 避免tldr自動更新。
-export TLDR_AUTO_UPDATE_DISABLED=true
-
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
-# LD_LIBRARY_PATH: 
-# 一個環境變量，用於指定運行時動態鏈接器在哪些目錄中搜索共享庫。
-# 共享庫是一種可執行代碼的形式，它可以被多個程序共享，以減少內存
-# 佔用和提高代碼重用性。將llvm函式庫的路徑加到LD_LIBRARY_PATH，以
-# 便程式運行期間能加載和使用llvm相關的函式庫，這動作叫做“動態連結”
-# export LD_LIBRARY_PATH="/opt/homebrew/opt/llvm/lib:$LD_LIBRARY_PATH"
-
-# export LDFLAGS="-L/opt/homebrew/opt/SDL2/lib"
-# export CPPFLAGS="-I/opt/homebrew/opt/SDL2/include"
+# export PYDEVD_DISABLE_FILE_VALIDATION=1 # 作用: 關閉 pydevd（Python 除錯器）的檔案驗證機制。
 
 # 參考資料：https://ixyzero.com/blog/archives/2840.html
-# 解決clangd #include <SDL.h> 'SDL.h' file not found
-# 使得LSP不報錯且編譯命令不需加上-I/opt/homebrew/include/SDL2
-# 也可將C_INCLUDE_PATH改成include結尾，去掉SDL2。  
-export C_INCLUDE_PATH=/opt/homebrew/include/SDL2:$C_INCLUDEPATH             
+export C_INCLUDE_PATH=/opt/homebrew/include/:$C_INCLUDEPATH # no use 'include/SDL2'
 export C_INCLUDE_PATH=/opt/homebrew/Cellar/glfw/3.4/include/:$C_INCLUDE_PATH
 export C_INCLUDE_PATH=/Users/dah/Learning/openGL/glad/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=/Users/dah/Learning/openGL/glad/include:$CPLUS_INCLUDE_PATH
-
-# export C_INCLUDE_PATH=/opt/homebrew/include/:$C_INCLUDE_PATH             
+export CPLUS_INCLUDE_PATH=/opt/homebrew/Cellar/open-mpi/5.0.3_1/include:$C_INCLUDE_PATH  
 # export CPLUS_INCLUDE_PATH=/opt/homebrew/include/SDL2:$CPLUS_INCLUDE_PATH     
+# export C_INCLUDE_PATH=/opt/homebrew/include/:$C_INCLUDE_PATH             
 
 # 使得編譯命令不需加上 -L/opt/homebrew/lib
-# 將該路徑設定至環境變數，使得作業系統會先去指定路徑底下找，
-# 找不到就去系統路徑
+# 將該路徑設定至環境變數，使得作業系統會先去指定路徑底下找，找不到就去系統路徑
 export LIBRARY_PATH=/opt/homebrew/lib:$LIBRARY_PATH
-
 export LIBRARY_PATH=/opt/homebrew/Cellar/glfw/3.4/lib:$LIBRARY_PATH
 
-
-
-# 效果: 可在命令行中直接運行llvm相關的工具，如clang、clang++ 等，
-# 而不必輸入完整的路徑(預設是/usr/bin/clang會先被使用)
-# jdh是只在.zshenv中設定，但我必須要在.zshrc才行
-export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
-
-# alias nvim=~/Downloads/nvim0.9.5/bin/nvim
-# alias nvim=/Users/dah/Documents/nvim-macos/bin/nvim
-
-# -z 意思為zero length。-z "$TMUX" 檢查 $TMUX 是否為空字串。
-if [ -z "$TMUX" ]; then 
-  # exec arch -arm64 tmux
-  tmux 
+if [ -z "$TMUX" ]; then
+    tmux # exec tmux / exec arch -arm64 tmux
 fi
 
 # You may need to manually set your language environment
@@ -75,10 +54,48 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#666666"
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_THEME="geoffgarside"
 
+if [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
+  export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=""
+  ZSH_THEME=""
+fi
+
 if type rg &> /dev/null; then
   export FZF_DEFAULT_COMMAND='rg --files'
   export FZF_DEFAULT_OPTS='-m --height 50% --border'
 fi
+
+function cfgzsh() {
+  nvim ~/.config/zsh/.zshrc
+}
+
+function cfgnvim() {
+  cd ~/.config/nvim
+  nvim init.lua
+}
+
+
+# NOTE: URL 裡的空白不能直接使用，所以需要 URL encoding，將字串解析成能用的
+# 字串中的特殊字元轉成 URL 可以安全表示的形式。%20 在 URL 中代表「空格」字元
+function google() {
+  open -a "Google Chrome" \
+    "https://www.google.com/search?q=$(python3 -c '
+      import urllib.parse, sys
+      print(urllib.parse.quote(" ".join(sys.argv[1:])))
+    ' "$@")"
+}
+
+
+function ask() {
+  open -a "Google Chrome" \
+    "https://chatgpt.com/?q=$(python3 -c '
+      import urllib.parse, sys
+      print(urllib.parse.quote(" ".join(sys.argv[1:])))
+    ' "$@")"
+}
+
+
+# If you come from bash you might have to change your $PATH.
+# export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -88,7 +105,7 @@ fi
 # HYPHEN_INSENSITIVE="true"
 
 # Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
+zstyle ':omz:update' mode disabled  # disable automatic updates
 # zstyle ':omz:update' mode auto      # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
@@ -142,8 +159,7 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
-# zsh 觀念(解決重複路徑)
-# https://gist.github.com/Linerre/f11ad4a6a934dcf01ee8415c9457e7b2
+# NOTE: https://gist.github.com/Linerre/f11ad4a6a934dcf01ee8415c9457e7b2
 # The incantation typeset -U path, where the -U stands for unique,
 # tells the shell that it should not add anything to $path if it's
 # there already.
@@ -164,4 +180,4 @@ typeset -U path
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
+

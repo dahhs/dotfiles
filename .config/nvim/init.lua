@@ -1,12 +1,18 @@
 vim.g.mapleader = " "
+vim.opt.timeoutlen = 200 
 vim.cmd([[so ~/.config/nvim/legacy.vim]])
-vim.g.python3_host_prog = '/usr/bin/python3'
+
 
 require("plugins")
 require('mylsp')
 require('nvimcmp')
 
 
+vim.opt.mouse = "a"
+vim.keymap.set("n", "<ScrollWheelUp>", "<C-y>")   -- 游標向上滾 1 行
+vim.keymap.set("n", "<ScrollWheelDown>", "<C-e>") -- 游標向上滾 1 行
+vim.keymap.set("n", ";y", '"+yi"')
+vim.keymap.set("n", ";yy", '"+yi\'')
 vim.keymap.set("n", "<M-o>", "<C-o>") -- 用 Alt-i 和 Alt-o 來代替，避免跟 Tab 衝突
 vim.keymap.set("n", "<M-i>", "<C-i>")
 vim.keymap.set("n", "<leader>=", "glip=", { remap = true, })
@@ -26,9 +32,7 @@ vim.fn.matchadd("annotation", [[\<BUG\>]])
 
 
 vim.api.nvim_create_autocmd('FileType', {
-  callback = function(args)
-    pcall(vim.treesitter.start, args.buf)
-  end,
+  callback = function(args) pcall(vim.treesitter.start, args.buf) end,
 })
 
 
@@ -66,11 +70,27 @@ require("gruvbox").setup({
 
 
     -- py
+    -- ["@keyword.return.python"] = { fg = "#E3665F", }, -- pink
+    -- ["@keyword.return.python"] = { fg = "#e35f6f", }, -- pink+
+    -- ["@keyword.return.python"]    = { fg = "#e35f78", }, -- pink++
+    
     ["@variable.python"]         = { fg = "#8fad8a" }, -- #83a598 or #8fad8a
     ["@module.python"]           = { fg = "#83a598" }, -- #8fad8a or #458588
     ["@function.builtin.python"] = { fg = "#b8bb26" },
     ["@operator.python"]         = { fg = "#ebdbb2" }, -- white
-    ["@string.prefix.python"]    = { fg = "#ec6a65" }, -- red
+
+    -- go ~/.local/share/nvim/site/pack/core/opt/nvim-treesitter/runtime/queries/python/highlight.scm
+    -- below '(string) @string' add:
+    -- ((string_start) @string.prefix
+    --   (#lua-match? @string.prefix "^[fF]\""))
+    -- (
+    --   (string
+    --     (string_start) @_start
+    --     (string_end) @string.suffix)
+    --   (#lua-match? @_start "^[fF]\"")
+    -- )
+    ["@string.prefix.python"]    = { fg = "#e35f6f" }, -- red / pink
+    ["@string.suffix.python"]    = { fg = "#e35f6f" }, -- red / pink
     ["@constructor.python"]      = { fg = "#fabd2f" }, -- yellow
 
     -- c
@@ -108,14 +128,11 @@ require('nvim-web-devicons').setup()
 
 require("lualine").setup({
   sections = {
-    lualine_c = {
-      {
-        'filename',
-        path = 1,
-      }
-    }
+    lualine_c = { { 'filename', path = 1, } }
   },
+  -- sections = { lualine_c = {'%=', '%t%m', '%3p'} },
   options = {
+    icons_enabled = false, -- true/false
     theme = {
       normal = {
         a = { fg = "#282828", bg = "#ae9393" },
@@ -123,14 +140,29 @@ require("lualine").setup({
         c = { fg = "#a89984", bg = "#434343" },
       },
       insert = {
+        a = { fg = "#282828", bg = "#83a598" },
         b = { fg = "#ebdbb2", bg = "#504945" },
         c = { fg = "#a89984", bg = "#434343" },
       },
       command = {
+        a = { fg = "#282828", bg = "#b8bb26" },
         b = { fg = "#ebdbb2", bg = "#504945" },
         c = { fg = "#a89984", bg = "#434343" },
       },
       visual = {
+        a = { fg = "#282828", bg = "#fe8019" },
+        b = { fg = "#ebdbb2", bg = "#504945" },
+        c = { fg = "#a89984", bg = "#434343" },
+      },
+
+      terminal = {
+        a = { fg = "#282828", bg = "#cc8bad" },
+        b = { fg = "#ebdbb2", bg = "#504945" },
+        c = { fg = "#a89984", bg = "#434343" },
+      },
+
+      replace = {
+        a = { fg = "#282828", bg = "#e35f6f" },
         b = { fg = "#ebdbb2", bg = "#504945" },
         c = { fg = "#a89984", bg = "#434343" },
       },
@@ -138,11 +170,9 @@ require("lualine").setup({
     -- minimal+
     section_separators   = { left = "", right  = "", },
     component_separators = { left = "│", right = "│", },
-
     -- minimal
     -- section_separators = '',
     -- component_separators = '',
-
     -- rounded corners
     -- component_separators = { left = '', right = '' },
     -- section_separators = { left = '', right = '' },
@@ -161,6 +191,18 @@ vim.keymap.set("n", ";gc", function() fzf.git_commits({ no_ignore = true }) end)
 vim.keymap.set("n", ";gs", function() fzf.git_status({ no_ignore = true }) end)
 vim.keymap.set("n", ";gb", function() fzf.git_branches({ no_ignore = true }) end)
 vim.keymap.set("n", ";gf", function() fzf.git_diff({ no_ignore = true }) end)
+vim.keymap.set("n", ";gbl", function() fzf.git_blame({ no_ignore = true }) end)
+
+
+vim.keymap.set("n", "<leader>ws", function()
+    require("fzf-lua").lsp_workspace_symbols()
+end)
+
+
+vim.keymap.set("n", ";fs", function()
+    require("fzf-lua").lsp_document_symbols()
+end)
+
 
 require("fzf-lua").setup{
   actions = {
@@ -196,14 +238,18 @@ require("fzf-lua").setup{
     -- rg_opts = "--color=never --files --hidden --follow -g '!.git' -g '!.venv'",
   },
   previewers = {
-    bat = {
-      cmd  = "bat",
-      args = "--color=always --style=numbers,changes",
-    },
     builtin = {
       title_fnamemodify = function(path) return vim.fn.fnamemodify(path, ":.") end,
+      extensions = {
+        ["png"]  = { "chafa", "{file}" },
+        ["jpg"]  = { "chafa", "{file}" },
+        ["jpeg"] = { "chafa", "{file}" },
+        ["webp"] = { "chafa", "{file}" },
+        ["svg"]  = { "chafa", "{file}" },
+        ["gif"]  = { "viu" }, -- viu better
+      },
     },
-  },
+  }
 }
 
 
