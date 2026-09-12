@@ -76,21 +76,31 @@ function cfgnvim() {
 
 # NOTE: URL 裡的空白不能直接使用，所以需要 URL encoding，將字串解析成能用的
 # 字串中的特殊字元轉成 URL 可以安全表示的形式。%20 在 URL 中代表「空格」字元
-function google() {
+# python3 -c '...' 直接執行後面的 Python 程式碼，不需建立 .py 檔。
+function goog() {
   open -a "Google Chrome" \
     "https://www.google.com/search?q=$(python3 -c '
       import urllib.parse, sys
-      print(urllib.parse.quote(" ".join(sys.argv[1:])))
-    ' "$@")"
+      print(urllib.parse.quote(" ".join(sys.argv[1:])))' "$@")"
 }
 
 
-function ask() {
+function ai() {
+  local query
+  if (( $# > 0 )); then
+    query=$(python3 -c '
+      import sys, urllib.parse
+      print(urllib.parse.quote(" ".join(sys.argv[1:])))' "$@"
+    )
+  else
+    query=$(pbpaste | python3 -c '
+      import sys, urllib.parse
+      print(urllib.parse.quote(sys.stdin.read()))'
+    )
+  fi
+
   open -a "Google Chrome" \
-    "https://chatgpt.com/?q=$(python3 -c '
-      import urllib.parse, sys
-      print(urllib.parse.quote(" ".join(sys.argv[1:])))
-    ' "$@")"
+    "https://chatgpt.com/?q=$query"
 }
 
 
