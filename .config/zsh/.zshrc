@@ -1,58 +1,30 @@
-# 隨時刪除這些設定
-# export VULKAN_SDK=$HOME/Projects/capstone-project/VulkanSDK/1.4.335.0
-# export PATH=$VULKAN_SDK/macOS/bin:$PATH
-# export DYLD_LIBRARY_PATH=$VULKAN_SDK/macOS/lib:$DYLD_LIBRARY_PATH
+alias lsd="ls -dl .*"
+alias gitgraph="git log --graph --decorate --oneline --all"
+alias tsw='tmux switch-client -t'
+alias tls='tmux ls'
+alias tks='tmux kill-session -t'
+
 
 eval $(/opt/homebrew/bin/brew shellenv)
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_PROGRESS=1
 export TLDR_AUTO_UPDATE_DISABLED=true
-
 export EDITOR=nvim
-alias lsd="ls -dl .*"
-alias gitgraph="git log --graph --decorate --oneline --all"
 
-
-export DYLD_FALLBACK_LIBRARY_PATH="$(brew --prefix)/lib:$DYLD_FALLBACK_LIBRARY_PATH"
-
-# 可在命令行中直接運行llvm相關的工具，如clang、clang++等，
-# 而不必輸入完整的路徑(預設是/usr/bin/clang會先被使用)
-export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
-
-export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
-export LDFLAGS="-L/opt/homebrew/opt/binutils/lib"
-export CPPFLAGS="-I/opt/homebrew/opt/binutils/include"
-
-# export PYDEVD_DISABLE_FILE_VALIDATION=1 # 作用: 關閉 pydevd（Python 除錯器）的檔案驗證機制。
-
-# 參考資料：https://ixyzero.com/blog/archives/2840.html
-export C_INCLUDE_PATH=/opt/homebrew/include/:$C_INCLUDEPATH # no use 'include/SDL2'
-export C_INCLUDE_PATH=/opt/homebrew/Cellar/glfw/3.4/include/:$C_INCLUDE_PATH
-export C_INCLUDE_PATH=/Users/dah/Learning/openGL/glad/include:$C_INCLUDE_PATH
-export CPLUS_INCLUDE_PATH=/Users/dah/Learning/openGL/glad/include:$CPLUS_INCLUDE_PATH
-export CPLUS_INCLUDE_PATH=/opt/homebrew/Cellar/open-mpi/5.0.3_1/include:$C_INCLUDE_PATH  
-# export CPLUS_INCLUDE_PATH=/opt/homebrew/include/SDL2:$CPLUS_INCLUDE_PATH     
-# export C_INCLUDE_PATH=/opt/homebrew/include/:$C_INCLUDE_PATH             
-
-# 使得編譯命令不需加上 -L/opt/homebrew/lib
-# 將該路徑設定至環境變數，使得作業系統會先去指定路徑底下找，找不到就去系統路徑
-export LIBRARY_PATH=/opt/homebrew/lib:$LIBRARY_PATH
-export LIBRARY_PATH=/opt/homebrew/Cellar/glfw/3.4/lib:$LIBRARY_PATH
-
-if [ -z "$TMUX" ]; then
-    tmux # exec tmux / exec arch -arm64 tmux
-fi
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
 
 # Path to your oh-my-zsh installation.
 export ZSH="$ZDOTDIR/ohmyzsh"
-
-# zsh-autosuggest config
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#666666"
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_THEME="geoffgarside"
+
+if [ -z "$TMUX" ]; then
+    exec tmux
+fi
 
 if [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
   export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=""
@@ -99,8 +71,7 @@ function ai() {
     )
   fi
 
-  open -a "Google Chrome" \
-    "https://chatgpt.com/?q=$query"
+  open -a "Google Chrome" "https://chatgpt.com/?q=$query"
 }
 
 

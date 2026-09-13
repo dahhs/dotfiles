@@ -73,7 +73,6 @@ require("gruvbox").setup({
     -- ["@keyword.return.python"] = { fg = "#E3665F", }, -- pink
     -- ["@keyword.return.python"] = { fg = "#e35f6f", }, -- pink+
     -- ["@keyword.return.python"]    = { fg = "#e35f78", }, -- pink++
-    
     ["@variable.python"]         = { fg = "#8fad8a" }, -- #83a598 or #8fad8a
     ["@module.python"]           = { fg = "#83a598" }, -- #8fad8a or #458588
     ["@function.builtin.python"] = { fg = "#b8bb26" },
