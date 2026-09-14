@@ -1,5 +1,5 @@
 vim.g.mapleader = " "
-vim.opt.timeoutlen = 200 
+vim.opt.timeoutlen = 300
 vim.cmd([[so ~/.config/nvim/legacy.vim]])
 
 

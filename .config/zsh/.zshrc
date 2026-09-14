@@ -4,14 +4,11 @@ alias tsw='tmux switch-client -t'
 alias tls='tmux ls'
 alias tks='tmux kill-session -t'
 
-
 eval $(/opt/homebrew/bin/brew shellenv)
 export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
-export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_PROGRESS=1
 export TLDR_AUTO_UPDATE_DISABLED=true
 export EDITOR=nvim
-
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
@@ -22,13 +19,13 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#666666"
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_THEME="geoffgarside"
 
-if [ -z "$TMUX" ]; then
-    exec tmux
+if [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
+    ZSH_THEME=""
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=""
 fi
 
-if [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
-  export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=""
-  ZSH_THEME=""
+if [ -z "$TMUX" ] && [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+    exec tmux
 fi
 
 if type rg &> /dev/null; then
